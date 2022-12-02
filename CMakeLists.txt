@@ -52,6 +52,7 @@ include_directories(
 set(TRACKER_SOURCES
     # Sources and headers go here.
     include/gimbal.hpp
+    src/gimbal.cpp
     src/main.cpp
     )
 

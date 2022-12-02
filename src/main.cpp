@@ -1,4 +1,5 @@
 #include <iostream>
+#include <exception>
 
 #include "gimbal.hpp"
 #include <math.h>
@@ -7,13 +8,19 @@ int main()
 {
     Gimbal gimbal;
 
-    if (gimbal.initFailed())
+    try
     {
-        std::cerr << "Gimbal initialization failed. Aborting." << std::endl;
+        gimbal.initializeDriver();
+    }
+    catch (const std::runtime_error &e)
+    {
+        std::cerr << e.what() << '\n';
         return -1;
     }
 
+    gimbal.configControl();
     gimbal.motorsOn();
+
     const int R = 25;
     const int resolution = 720;
     double step = (360.0 / (double)resolution) * M_PI / 180.0;

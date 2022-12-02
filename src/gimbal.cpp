@@ -2,8 +2,6 @@
 
 Gimbal::Gimbal()
 {
-    initializeDriver();
-    configControl();
 }
 
 void Gimbal::initializeDriver()
@@ -12,6 +10,12 @@ void Gimbal::initializeDriver()
     /* Driver Init */
     SBGC_1.Drv = malloc(sizeof(Driver_t));
     DriverInit(SBGC_1.Drv, (char *)SBGC_SERIAL_PORT);
+
+    if (initFailed())
+    {
+        throw std::runtime_error("Bad file descriptor - no device connected.");
+        // TODO: Throw more specific exception like -> throw std::system_error("Bad file descriptor - no device connected.");
+    }
 
     /* High Layer Init */
     SBGC32_DefaultInit(&SBGC_1, PortTransmitData, PortReceiveByte, GetAvailableBytes,
@@ -50,21 +54,21 @@ void Gimbal::configControl()
     SBGC32_ControlConfig(&SBGC_1, &ControlConfig, &Confirm);
 }
 
-void Gimbal::moveYawTo(int angle, int speed = 70)
+void Gimbal::moveYawTo(int angle, int speed)
 {
     Control.AxisC[YAW].angle = DEGREE_TO_ANGLE_INT(angle);
     Control.AxisC[YAW].speed = SPEED_TO_VALUE(speed);
     SBGC32_Control(&SBGC_1, &Control);
 }
 
-void Gimbal::movePitchTo(int angle, int speed = 70)
+void Gimbal::movePitchTo(int angle, int speed)
 {
     Control.AxisC[PITCH].angle = DEGREE_TO_ANGLE_INT(angle);
     Control.AxisC[PITCH].speed = SPEED_TO_VALUE(speed);
     SBGC32_Control(&SBGC_1, &Control);
 }
 
-void Gimbal::moveRollTo(int angle, int speed = 70)
+void Gimbal::moveRollTo(int angle, int speed)
 {
     Control.AxisC[ROLL].angle = DEGREE_TO_ANGLE_INT(angle);
     Control.AxisC[ROLL].speed = SPEED_TO_VALUE(speed);
