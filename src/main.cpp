@@ -10,7 +10,7 @@
 #define FRAMERATE 15
 
 using namespace std;
-
+float stara_pozycja=0,nowa_pozycja=0;
 
 std::string gstreamer_pipeline(int capture_width, int capture_height, int framerate, int display_width, int display_height)
 {
@@ -98,13 +98,19 @@ void move(cv::Point &przesuw, Gimbal &gimbal)
         {
             cout << "Przesun kamere w prawo o " << przesuw.x << endl
                 << "czyli o kat " << (przesuw.x * 63) / 640 << "stopni" << endl;
-                gimbal.movePitchTo((przesuw.x * 63) / 640);
+                stara pozycja=(przesuw.x*63)/640;
+                nowa_pozycja=nowa_pozycja+stara_pozycja;
+                gimbal.movePitchTo(nowa_pozycja);
+
+
         }
         if (przesuw.x < 0)
         {
             cout << "Przesun kamere w lewo o " << przesuw.x << endl
                 << "czyli o kat " << (przesuw.x * 63) / 640 << "stopni" << endl;
-                gimbal.movePitchTo((przesuw.x * 63) / 640);
+                stara pozycja=(przesuw.x*63)/640;
+                nowa_pozycja=nowa_pozycja+stara_pozycja;
+                gimbal.movePitchTo(nowa_pozycja);
         }
     }
 
@@ -118,13 +124,17 @@ void move(cv::Point &przesuw, Gimbal &gimbal)
         {
             cout << "Przesun kamere w dol o " << przesuw.y << endl
                 << "czyli o kat " << (przesuw.y * 63) / 640 << "stopni" << endl;
-                gimbal.moveYawTo(-(przesuw.y * 63) / 640);
+                stara pozycja=(przesuw.y*63)/640;
+                nowa_pozycja=nowa_pozycja+stara_pozycja;
+                gimbal.moveYawTo(-nowa_pozycja);
         }
         if (przesuw.y < 0)
         {
             cout << "Przesun kamere w gore o " << przesuw.y << endl
                 << "czyli o kat " << (przesuw.y * 63) / 640 << "stopni" << endl;
-                gimbal.moveYawTo(-(przesuw.y * 63) / 640);
+                stara pozycja=(przesuw.y*63)/640;
+                nowa_pozycja=nowa_pozycja+stara_pozycja;
+                gimbal.moveYawTo(-nowa_pozycja);
         }
     }
 }
