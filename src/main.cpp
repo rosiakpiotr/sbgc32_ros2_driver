@@ -127,27 +127,17 @@ void move(cv::Point &przesuw, Gimbal &gimbal)
         {
             cout << "Przesun kamere w dol o " << przesuw.y << endl
                 << "czyli o kat " << (przesuw.y * 63) / 640 << "stopni" << endl;
-<<<<<<< HEAD
                 stara pozycja=(przesuw.y*63)/640;
                 nowa_pozycja=nowa_pozycja+stara_pozycja;
                 gimbal.moveYawTo(-nowa_pozycja);
-=======
-                gimbal.moveYawTo(-(przesuw.y * 63) / 640);
-                //gimbal.moveYawTo(-5);
->>>>>>> 0fc4971a9c0003676beb67354230299c9e43dc56
         }
         if (przesuw.y < 0)
         {
             cout << "Przesun kamere w gore o " << przesuw.y << endl
                 << "czyli o kat " << (przesuw.y * 63) / 640 << "stopni" << endl;
-<<<<<<< HEAD
                 stara pozycja=(przesuw.y*63)/640;
                 nowa_pozycja=nowa_pozycja+stara_pozycja;
                 gimbal.moveYawTo(-nowa_pozycja);
-=======
-                gimbal.moveYawTo(-(przesuw.y * 63) / 640);
-                //gimbal.moveYawTo(5);
->>>>>>> 0fc4971a9c0003676beb67354230299c9e43dc56
         }
     }
 }
