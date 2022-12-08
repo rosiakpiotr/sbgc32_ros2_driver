@@ -59,6 +59,7 @@ cv::Point detect(cv::Mat &frame)
     cv::Mat red_hue_image;
     cv::addWeighted(lower_red_hue_range, 1.0, upper_red_hue_range, 1.0, 0.0, red_hue_image);
 
+
     cv::GaussianBlur(red_hue_image, red_hue_image, cv::Size(9, 9), 2, 2);
 
     std::vector<cv::Vec3f> circles;
@@ -81,7 +82,8 @@ cv::Point detect(cv::Mat &frame)
     cv::addWeighted(red_hue_image, 1.0, frame, 1.0, 0.0, result);
     result.copyTo(frame);
     
-    przesuw -=cv::Point(640/2,480/2);
+    przesuw -= cv::Point(640/2,480/2);
+    
     
     return przesuw;
 }
@@ -91,6 +93,7 @@ void move(cv::Point &przesuw, Gimbal &gimbal)
     if (przesuw.x > -10 && przesuw.x < 10)
     {
         cout << "Osiagnales poziom" << endl;
+        
     }
     else
     {
@@ -119,12 +122,14 @@ void move(cv::Point &przesuw, Gimbal &gimbal)
             cout << "Przesun kamere w dol o " << przesuw.y << endl
                 << "czyli o kat " << (przesuw.y * 63) / 640 << "stopni" << endl;
                 gimbal.moveYawTo(-(przesuw.y * 63) / 640);
+                //gimbal.moveYawTo(-5);
         }
         if (przesuw.y < 0)
         {
             cout << "Przesun kamere w gore o " << przesuw.y << endl
                 << "czyli o kat " << (przesuw.y * 63) / 640 << "stopni" << endl;
                 gimbal.moveYawTo(-(przesuw.y * 63) / 640);
+                //gimbal.moveYawTo(5);
         }
     }
 }
@@ -188,9 +193,7 @@ int main()
         if (frame.empty())
             break;
         auto przesuw = detect(frame);
-        
         move(przesuw, gimbal);
-    
                         
         imshow("Frame", frame);
         char c = (char)cv::waitKey(25);
