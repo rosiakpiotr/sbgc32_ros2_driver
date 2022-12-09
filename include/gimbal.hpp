@@ -11,16 +11,25 @@
 #include "realtime/realtime.h"
 #include "service/service.h"
 
+struct Angles
+{
+    double pitch;
+    double yaw;
+    double roll;
+};
+
 class Gimbal
 {
 public:
     Gimbal();
 
     ///////////////////////////////////////////////
-    //// Call these 3 in following order       ////
+    //// Call these methods in following order       ////
     //// before attempting to move the gimbal. ////
     ///////////////////////////////////////////////
     void initializeDriver(); // Throws an exception if initialization fails.
+
+    void initializeRealTimeData(uint16_t pollingInterval);
 
     void configControl();
 
@@ -37,12 +46,17 @@ public:
 
     void motorsOff();
 
+    Angles getCurrentPosition();
+
 private:
     GeneralSBGC_t SBGC_1;
     Control_t Control;
 
     ControlConfig_t ControlConfig;
     ConfirmationState_t Confirm;
+
+    // Realtime data from the gimbal driver.
+    DataStreamInterval_t DataStreamInterval;
 };
 
 #endif

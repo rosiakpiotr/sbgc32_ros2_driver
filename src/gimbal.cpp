@@ -22,6 +22,19 @@ void Gimbal::initializeDriver()
                        PrintDebugData, GetTimeMs, SBGC_PROTOCOL_V2);
 }
 
+void Gimbal::initializeRealTimeData(uint16_t pollingInterval)
+{
+    /* Data Stream Configurations */
+    DataStreamInterval.cmdID = CMD_REALTIME_DATA_CUSTOM;
+    DataStreamInterval.intervalMs = pollingInterval;
+    DataStreamInterval.syncToData = STD_SYNC_OFF;
+
+    ui32 DataStreamIntervalConfig = RTDCF_STATOR_ROTOR_ANGLE; // | RTDCF_GYRO_DATA | RTDCF_ACC_DATA;
+    memcpy(DataStreamInterval.config, &DataStreamIntervalConfig, sizeof(DataStreamIntervalConfig));
+
+    SBGC32_RequestDataStream(&SBGC_1, &DataStreamInterval, &Confirm);
+}
+
 bool Gimbal::initFailed()
 {
     return ((Driver_t *)SBGC_1.Drv)->devFD == -1;
@@ -85,4 +98,27 @@ void Gimbal::motorsOff()
 {
     SBGC32_SetMotorsOFF(&SBGC_1, MM_SAFE_STOP, &Confirm);
     // std::cout << "Motors turned off." << std::endl;
+}
+
+Angles Gimbal::getCurrentPosition()
+{
+    RealTimeDataCustom_t RealTimeDataCustom;
+    ui8 DataStreamBuff[20];
+    SBGC32_ParseDataStream(&SBGC_1, DataStreamBuff, (SBGC_Commands_t)DataStreamInterval.cmdID);
+
+    /* Preparing */
+    ui8 BuffRPx = 2; // ui16 timestampMs offset
+
+    BuffRPx += ConvertWithPM(RealTimeDataCustom.frameCamAngle, &DataStreamBuff[BuffRPx],
+                             sizeof(RealTimeDataCustom.targetAngles), PM_DEFAULT_16BIT);
+    // BuffRPx += ConvertWithPM(RealTimeDataCustom.gyroData, &DataStreamBuff[BuffRPx],
+    //                          sizeof(RealTimeDataCustom.gyroData), PM_DEFAULT_16BIT);
+    // BuffRPx += ConvertWithPM(RealTimeDataCustom.ACC_Data, &DataStreamBuff[BuffRPx],
+    //                          sizeof(RealTimeDataCustom.ACC_Data), PM_DEFAULT_16BIT);
+
+    return {
+        RealTimeDataCustom.frameCamAngle[PITCH] * 0.02197265625,
+        RealTimeDataCustom.frameCamAngle[YAW] * 0.02197265625,
+        RealTimeDataCustom.frameCamAngle[ROLL] * 0.02197265625,
+    };
 }
