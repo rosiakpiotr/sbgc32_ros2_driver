@@ -10,7 +10,8 @@
 #define FRAMERATE 15
 
 using namespace std;
-float stara_pozycja=0,nowa_pozycja=0;
+//float stara_pozycja=0,nowa_pozycja=0;
+cv:: Point stara_pozycja(0,0),nowa_pozycja(0,0);
 
 std::string gstreamer_pipeline(int capture_width, int capture_height, int framerate, int display_width, int display_height)
 {
@@ -66,7 +67,7 @@ cv::Point detect(cv::Mat &frame)
     cv::HoughCircles(red_hue_image, circles, cv::HOUGH_GRADIENT, 1, red_hue_image.rows / 8, 100, 20, 100, 200);
 
     cv::Point przesuw;
-
+    if(circles.size()>0){
     for (size_t current_circle = 0; current_circle < circles.size(); ++current_circle)
     {
         cv::Point center(std::round(circles[current_circle][0]), std::round(circles[current_circle][1]));
@@ -86,14 +87,21 @@ cv::Point detect(cv::Mat &frame)
     
     
     return przesuw;
+} else return cv::Point(0,0);
 }
 
-void move(cv::Point &przesuw, Gimbal &gimbal)
+void katy (cv::Point &nowa_pozycja,Gimbal &gimbal)
+{
+    gimbal.movePitchTo(nowa_pozycja.x);
+    gimbal.moveYawTo(-nowa_pozycja.y);
+}
+
+cv::Point move(cv::Point &przesuw)
 {    
     if (przesuw.x > -10 && przesuw.x < 10)
     {
         cout << "Osiagnales poziom" << endl;
-        
+        nowa_pozycja.x = 0;
     }
     else
     {
@@ -101,9 +109,9 @@ void move(cv::Point &przesuw, Gimbal &gimbal)
         {
             cout << "Przesun kamere w prawo o " << przesuw.x << endl
                 << "czyli o kat " << (przesuw.x * 63) / 640 << "stopni" << endl;
-                stara pozycja=(przesuw.x*63)/640;
-                nowa_pozycja=nowa_pozycja+stara_pozycja;
-                gimbal.movePitchTo(nowa_pozycja);
+                stara_pozycja.x=(przesuw.x*63)/640;
+                nowa_pozycja.x=nowa_pozycja.x+stara_pozycja.x;
+                //gimbal.movePitchTo(nowa_pozycja);
 
 
         }
@@ -111,15 +119,16 @@ void move(cv::Point &przesuw, Gimbal &gimbal)
         {
             cout << "Przesun kamere w lewo o " << przesuw.x << endl
                 << "czyli o kat " << (przesuw.x * 63) / 640 << "stopni" << endl;
-                stara pozycja=(przesuw.x*63)/640;
-                nowa_pozycja=nowa_pozycja+stara_pozycja;
-                gimbal.movePitchTo(nowa_pozycja);
+                stara_pozycja.x=(przesuw.x*63)/640;
+                nowa_pozycja.x=nowa_pozycja.x+stara_pozycja.x;
+                //gimbal.movePitchTo(nowa_pozycja);
         }
     }
 
     if (przesuw.y > -10 && przesuw.y < 10)
     {
         cout << "Osiagnales pion" << endl;
+        nowa_pozycja.y = 0;
     }
     else
     {
@@ -127,23 +136,27 @@ void move(cv::Point &przesuw, Gimbal &gimbal)
         {
             cout << "Przesun kamere w dol o " << przesuw.y << endl
                 << "czyli o kat " << (przesuw.y * 63) / 640 << "stopni" << endl;
-                stara pozycja=(przesuw.y*63)/640;
-                nowa_pozycja=nowa_pozycja+stara_pozycja;
-                gimbal.moveYawTo(-nowa_pozycja);
+                stara_pozycja.y=(przesuw.y*63)/640;
+                nowa_pozycja.y=nowa_pozycja.y+stara_pozycja.y;
+               // gimbal.moveYawTo(-nowa_pozycja);
         }
         if (przesuw.y < 0)
         {
             cout << "Przesun kamere w gore o " << przesuw.y << endl
                 << "czyli o kat " << (przesuw.y * 63) / 640 << "stopni" << endl;
-                stara pozycja=(przesuw.y*63)/640;
-                nowa_pozycja=nowa_pozycja+stara_pozycja;
-                gimbal.moveYawTo(-nowa_pozycja);
+                stara_pozycja.y=(przesuw.y*63)/640;
+                nowa_pozycja.y=nowa_pozycja.y+stara_pozycja.y;
+                //gimbal.moveYawTo(-nowa_pozycja);
         }
     }
+    return nowa_pozycja;
 }
 
 int main()
 {
+    //cv::Point przesuw(-320,-320);
+    //cv::Point kat = move(przesuw);
+    //cout << kat.x << " " << kat.y << endl;
     
     Gimbal gimbal;
 
@@ -201,7 +214,9 @@ int main()
         if (frame.empty())
             break;
         auto przesuw = detect(frame);
-        move(przesuw, gimbal);
+        cv::Point kat = move(przesuw);
+        katy(kat, gimbal);
+        
                         
         imshow("Frame", frame);
         char c = (char)cv::waitKey(25);
