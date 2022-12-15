@@ -5,12 +5,14 @@
 #include "gimbal.hpp"
 #include "camera.hpp"
 
+#include <opencv2/objdetect/objdetect.hpp>
+
 #define CAPTURE_WIDTH 640
 #define CAPTURE_HEIGHT 480
 #define FRAMERATE 15
 
 using namespace std;
-//float stara_pozycja=0,nowa_pozycja=0;
+
 cv:: Point stara_pozycja(0,0),nowa_pozycja(0,0);
 
 std::string gstreamer_pipeline(int capture_width, int capture_height, int framerate, int display_width, int display_height)
@@ -92,16 +94,18 @@ cv::Point detect(cv::Mat &frame)
 
 void katy (cv::Point &nowa_pozycja,Gimbal &gimbal)
 {
-    gimbal.movePitchTo(nowa_pozycja.x);
-    gimbal.moveYawTo(-nowa_pozycja.y);
+    gimbal.movePitchTo(nowa_pozycja.y,5);
+    gimbal.moveYawTo(nowa_pozycja.x,5);
+    gimbal.moveRollTo(0,0); //???
 }
 
 cv::Point move(cv::Point &przesuw)
 {    
-    if (przesuw.x > -10 && przesuw.x < 10)
+    if (przesuw.x > -50 && przesuw.x < 50)
     {
         cout << "Osiagnales poziom" << endl;
         nowa_pozycja.x = 0;
+        
     }
     else
     {
@@ -111,7 +115,7 @@ cv::Point move(cv::Point &przesuw)
                 << "czyli o kat " << (przesuw.x * 63) / 640 << "stopni" << endl;
                 stara_pozycja.x=(przesuw.x*63)/640;
                 nowa_pozycja.x=nowa_pozycja.x+stara_pozycja.x;
-                //gimbal.movePitchTo(nowa_pozycja);
+                
 
 
         }
@@ -121,11 +125,10 @@ cv::Point move(cv::Point &przesuw)
                 << "czyli o kat " << (przesuw.x * 63) / 640 << "stopni" << endl;
                 stara_pozycja.x=(przesuw.x*63)/640;
                 nowa_pozycja.x=nowa_pozycja.x+stara_pozycja.x;
-                //gimbal.movePitchTo(nowa_pozycja);
         }
     }
 
-    if (przesuw.y > -10 && przesuw.y < 10)
+    if (przesuw.y > -50 && przesuw.y < 50)
     {
         cout << "Osiagnales pion" << endl;
         nowa_pozycja.y = 0;
@@ -138,7 +141,6 @@ cv::Point move(cv::Point &przesuw)
                 << "czyli o kat " << (przesuw.y * 63) / 640 << "stopni" << endl;
                 stara_pozycja.y=(przesuw.y*63)/640;
                 nowa_pozycja.y=nowa_pozycja.y+stara_pozycja.y;
-               // gimbal.moveYawTo(-nowa_pozycja);
         }
         if (przesuw.y < 0)
         {
@@ -146,17 +148,47 @@ cv::Point move(cv::Point &przesuw)
                 << "czyli o kat " << (przesuw.y * 63) / 640 << "stopni" << endl;
                 stara_pozycja.y=(przesuw.y*63)/640;
                 nowa_pozycja.y=nowa_pozycja.y+stara_pozycja.y;
-                //gimbal.moveYawTo(-nowa_pozycja);
         }
     }
     return nowa_pozycja;
 }
 
+
+cv::Point detect_face(cv::Mat &frame, cv::CascadeClassifier &cascade, int minSize, int maxSize, double confidence)
+{
+    cv::Mat gray;
+    cv::cvtColor(frame, gray, cv::COLOR_BGR2GRAY);
+    vector<cv::Rect> result;
+    vector<int> levels;
+    vector<double> weights;
+    cascade.detectMultiScale(gray, result, levels, weights, 1.1, 3, 0 | cv::CASCADE_SCALE_IMAGE,
+                             cv::Size(minSize, minSize), cv::Size(maxSize, maxSize), true);
+    cv::Point przesuw;
+    if(result.size()>0){
+    for (int i = 0; i < result.size(); i++) {
+        if (weights[i] > confidence) {
+            cv::rectangle(frame, result[i], cv::Scalar(0, 255, 0), 2);
+            int x = result[i].x + result[i].width/2;
+            int y = result[i].y + result[i].height/2;
+            cv::circle(frame,cv::Point(x,y),10,cv::Scalar(0, 255, 0), 2);
+            przesuw = cv::Point(x,y);
+        }
+    }
+    przesuw -= cv::Point(640/2,480/2);    
+    
+     return przesuw;
+ }else return cv::Point(0,0);
+    
+}
+
+
 int main()
 {
-    //cv::Point przesuw(-320,-320);
-    //cv::Point kat = move(przesuw);
-    //cout << kat.x << " " << kat.y << endl;
+    cv::CascadeClassifier cascade;
+    bool success = cascade.load("./face.xml");
+    if(!success) {
+        throw runtime_error("Problem while loading face model");
+    }
     
     Gimbal gimbal;
 
@@ -213,7 +245,9 @@ int main()
         cap >> frame;
         if (frame.empty())
             break;
-        auto przesuw = detect(frame);
+        
+        auto przesuw =detect_face(frame, cascade, 100, 600, 0.0);
+        //auto przesuw = detect(frame); //wykrywanie koloru
         cv::Point kat = move(przesuw);
         katy(kat, gimbal);
         
