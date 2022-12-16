@@ -13,7 +13,7 @@
 
 using namespace std;
 
-cv:: Point stara_pozycja(0,0),nowa_pozycja(0,0);
+cv::Point przesuw_kat(0, 0), new_pos(0, 0);
 
 std::string gstreamer_pipeline(int capture_width, int capture_height, int framerate, int display_width, int display_height)
 {
@@ -62,97 +62,121 @@ cv::Point detect(cv::Mat &frame)
     cv::Mat red_hue_image;
     cv::addWeighted(lower_red_hue_range, 1.0, upper_red_hue_range, 1.0, 0.0, red_hue_image);
 
-
     cv::GaussianBlur(red_hue_image, red_hue_image, cv::Size(9, 9), 2, 2);
 
     std::vector<cv::Vec3f> circles;
     cv::HoughCircles(red_hue_image, circles, cv::HOUGH_GRADIENT, 1, red_hue_image.rows / 8, 100, 20, 100, 200);
 
     cv::Point przesuw;
-    if(circles.size()>0){
-    for (size_t current_circle = 0; current_circle < circles.size(); ++current_circle)
+    if (circles.size() > 0)
     {
-        cv::Point center(std::round(circles[current_circle][0]), std::round(circles[current_circle][1]));
-        int radius = std::round(circles[current_circle][2]);
+        for (size_t current_circle = 0; current_circle < circles.size(); ++current_circle)
+        {
+            cv::Point center(std::round(circles[current_circle][0]), std::round(circles[current_circle][1]));
+            int radius = std::round(circles[current_circle][2]);
 
-        przesuw = center;
+            przesuw = center;
 
-        cv::circle(frame, center, radius, cv::Scalar(255, 0, 0), 2);
+            cv::circle(frame, center, radius, cv::Scalar(255, 0, 0), 2);
+        }
+
+        cv::cvtColor(red_hue_image, red_hue_image, cv::COLOR_GRAY2BGR);
+        cv::Mat result;
+        cv::addWeighted(red_hue_image, 1.0, frame, 1.0, 0.0, result);
+        result.copyTo(frame);
+
+        przesuw -= cv::Point(640 / 2, 480 / 2);
+
+        return przesuw;
     }
-
-    cv::cvtColor(red_hue_image, red_hue_image, cv::COLOR_GRAY2BGR);
-    cv::Mat result;
-    cv::addWeighted(red_hue_image, 1.0, frame, 1.0, 0.0, result);
-    result.copyTo(frame);
-    
-    przesuw -= cv::Point(640/2,480/2);
-    
-    
-    return przesuw;
-} else return cv::Point(0,0);
+    else
+        return cv::Point(0, 0);
 }
 
-void katy (cv::Point &nowa_pozycja,Gimbal &gimbal)
+void katy(cv::Point &new_pos, Gimbal &gimbal)
 {
-    gimbal.movePitchTo(nowa_pozycja.y,5);
-    gimbal.moveYawTo(nowa_pozycja.x,5);
-    gimbal.moveRollTo(0,0); //???
+    gimbal.movePitchTo(new_pos.y, 10);
+    gimbal.moveYawTo(new_pos.x, 10);
 }
 
-cv::Point move(cv::Point &przesuw)
-{    
+cv::Point move(cv::Point &przesuw, Angles current_pos)
+{
+    /*przesuw kat - roznica pozycji przedmiotu i środka obrazu w stopniach
+     * new_pos - globalny przesuw gimbala
+     */
+    /*
+   if (przesuw.x > -50 && przesuw.x < 50)
+   {
+       cout << "Jest w srodku po osi x" << endl
+            << "obecny kat " << current_pos.yaw << endl;
+       new_pos.x = current_pos.yaw;
+   }
+   else
+   {
+       przesuw_kat.x = (przesuw.x * 63) / 640;
+       cout << "Przesuniecie w osi x o " << przesuw.x << endl
+            << "przesun o kat " << przesuw_kat.x << "stopni" << endl
+            << "od " << current_pos.yaw << endl;
+
+       new_pos.x = current_pos.yaw + przesuw_kat.x;
+   }
+
+   if (przesuw.y > -50 && przesuw.y < 50)
+   {
+       cout << "Jest w srodku po osi y" << endl
+            << "obecny kat " << current_pos.pitch << endl;
+       new_pos.x = current_pos.pitch;
+   }
+   else
+   {
+
+       przesuw_kat.y = (przesuw.y * 63) / 640;
+       cout << "Przesuniecie w osi y o " << przesuw.y << endl
+            << "przesun o kat " << przesuw_kat.y << "stopni" << endl
+            << "od " << current_pos.pitch << endl;
+
+       new_pos.y = current_pos.pitch + przesuw_kat.y;
+   }
+   return new_pos;
+   */
+    double kat = 10;
+    /*
     if (przesuw.x > -50 && przesuw.x < 50)
     {
-        cout << "Osiagnales poziom" << endl;
-        nowa_pozycja.x = 0;
-        
+        cout << "Jest w srodku po osi x" << endl
+             << "obecny kat " << current_pos.yaw << endl;
+        new_pos.y = 0;
     }
     else
     {
-        if (przesuw.x > 0)
-        {
-            cout << "Przesun kamere w prawo o " << przesuw.x << endl
-                << "czyli o kat " << (przesuw.x * 63) / 640 << "stopni" << endl;
-                stara_pozycja.x=(przesuw.x*63)/640;
-                nowa_pozycja.x=nowa_pozycja.x+stara_pozycja.x;
-                
+        double r = przesuw.x/przesuw.y;
+        przesuw_kat.x = (przesuw.x * 63) / 640;
+        cout << "Przesuniecie w osi x o " << przesuw.x << endl
+             << "przesun o kat " << przesuw_kat.x << "stopni" << endl
+             << "od " << current_pos.yaw << endl;
 
-
-        }
-        if (przesuw.x < 0)
-        {
-            cout << "Przesun kamere w lewo o " << przesuw.x << endl
-                << "czyli o kat " << (przesuw.x * 63) / 640 << "stopni" << endl;
-                stara_pozycja.x=(przesuw.x*63)/640;
-                nowa_pozycja.x=nowa_pozycja.x+stara_pozycja.x;
-        }
+        new_pos.x = current_pos.yaw+r*kat;
     }
+    */
 
     if (przesuw.y > -50 && przesuw.y < 50)
     {
-        cout << "Osiagnales pion" << endl;
-        nowa_pozycja.y = 0;
+        cout << "Jest w srodku po osi y" << endl
+             << "obecny kat " << current_pos.pitch << endl;
+        new_pos.y = 0;
     }
     else
     {
-        if (przesuw.y > 0)
-        {
-            cout << "Przesun kamere w dol o " << przesuw.y << endl
-                << "czyli o kat " << (przesuw.y * 63) / 640 << "stopni" << endl;
-                stara_pozycja.y=(przesuw.y*63)/640;
-                nowa_pozycja.y=nowa_pozycja.y+stara_pozycja.y;
-        }
-        if (przesuw.y < 0)
-        {
-            cout << "Przesun kamere w gore o " << przesuw.y << endl
-                << "czyli o kat " << (przesuw.y * 63) / 640 << "stopni" << endl;
-                stara_pozycja.y=(przesuw.y*63)/640;
-                nowa_pozycja.y=nowa_pozycja.y+stara_pozycja.y;
-        }
-    }
-    return nowa_pozycja;
-}
 
+        przesuw_kat.y = (przesuw.y * 63) / 640;
+        cout << "Przesuniecie w osi y o " << przesuw.y << endl
+             << "przesun o kat " << przesuw_kat.y << "stopni" << endl
+             << "od " << current_pos.pitch << endl;
+
+        new_pos.y = current_pos.pitch - kat;
+    }
+    return new_pos;
+}
 
 cv::Point detect_face(cv::Mat &frame, cv::CascadeClassifier &cascade, int minSize, int maxSize, double confidence)
 {
@@ -164,32 +188,36 @@ cv::Point detect_face(cv::Mat &frame, cv::CascadeClassifier &cascade, int minSiz
     cascade.detectMultiScale(gray, result, levels, weights, 1.1, 3, 0 | cv::CASCADE_SCALE_IMAGE,
                              cv::Size(minSize, minSize), cv::Size(maxSize, maxSize), true);
     cv::Point przesuw;
-    if(result.size()>0){
-    for (int i = 0; i < result.size(); i++) {
-        if (weights[i] > confidence) {
-            cv::rectangle(frame, result[i], cv::Scalar(0, 255, 0), 2);
-            int x = result[i].x + result[i].width/2;
-            int y = result[i].y + result[i].height/2;
-            cv::circle(frame,cv::Point(x,y),10,cv::Scalar(0, 255, 0), 2);
-            przesuw = cv::Point(x,y);
+    if (result.size() > 0)
+    {
+        for (int i = 0; i < result.size(); i++)
+        {
+            if (weights[i] > confidence)
+            {
+                cv::rectangle(frame, result[i], cv::Scalar(0, 255, 0), 2);
+                int x = result[i].x + result[i].width / 2;
+                int y = result[i].y + result[i].height / 2;
+                cv::circle(frame, cv::Point(x, y), 10, cv::Scalar(0, 255, 0), 2);
+                przesuw = cv::Point(x, y);
+            }
         }
-    }
-    przesuw -= cv::Point(640/2,480/2);    
-    
-     return przesuw;
- }else return cv::Point(0,0);
-    
-}
+        przesuw -= cv::Point(640 / 2, 480 / 2);
 
+        return przesuw;
+    }
+    else
+        return cv::Point(0, 0);
+}
 
 int main()
 {
     cv::CascadeClassifier cascade;
     bool success = cascade.load("./face.xml");
-    if(!success) {
+    if (!success)
+    {
         throw runtime_error("Problem while loading face model");
     }
-    
+
     Gimbal gimbal;
 
     try
@@ -201,13 +229,14 @@ int main()
         std::cerr << e.what() << '\n';
         return -1;
     }
-    
+
     gimbal.configControl();
+    gimbal.initializeRealTimeData(150);
     gimbal.motorsOn();
     // std::cout << cv::getBuildInformation();
 
     // pipeline parameters
-    
+
     int capture_width = 640;  // 1280 ;
     int capture_height = 480; // 720 ;
     int framerate = 15;
@@ -238,21 +267,28 @@ int main()
     //     cout << "Error opening video stream or file" << endl;
     //     return -1;
     // }
-
+    // gimbal.movePitchTo(0);
+    // gimbal.moveYawTo(0);
+    // gimbal.moveRollTo(0);
     while (1)
     {
         cv::Mat frame;
         cap >> frame;
         if (frame.empty())
             break;
-        
-        auto przesuw =detect_face(frame, cascade, 100, 600, 0.0);
-        //auto przesuw = detect(frame); //wykrywanie koloru
-        cv::Point kat = move(przesuw);
+
+        system("clear");
+        auto przesuw = detect_face(frame, cascade, 100, 600, 0.0);
+        // auto przesuw = detect(frame); //wykrywanie koloru
+        cv::Point kat = move(przesuw, gimbal.getCurrentPosition());
         katy(kat, gimbal);
-        
-                        
+
         imshow("Frame", frame);
+        // Angles angles = gimbal.getCurrentPosition();
+        // cout << "Pitch: " << angles.pitch << endl
+        //      << "Yaw" << angles.yaw << endl
+        //      << "Roll" << angles.roll << endl;
+
         char c = (char)cv::waitKey(25);
         if (c == 27)
             break;
@@ -260,52 +296,7 @@ int main()
 
     cap.release();
     cv::destroyAllWindows();
-    
-    gimbal.motorsOff();
-    
-    /*
-    Gimbal gimbal;
-
-    try
-    {
-        gimbal.initializeDriver();
-    }
-    catch (const std::runtime_error &e)
-    {
-        std::cerr << e.what() << '\n';
-        return -1;
-    }
-
-    Camera camera(
-        CAPTURE_WIDTH,
-        CAPTURE_HEIGHT,
-        FRAMERATE);
-
-    if (!camera.isOpened())
-    {
-        std::cerr << "Couldn't open the camera." << std::endl;
-        return -1;
-    }
-
-    gimbal.configControl();
-    gimbal.motorsOn();
-
-    const int R = 25;
-    const int resolution = 720;
-    double step = (360.0 / (double)resolution) * M_PI / 180.0;
-
-    while (true)
-    {
-        FOR_(i, resolution)
-        {
-            gimbal.movePitchTo(R * sin(i * step));
-            gimbal.moveYawTo(R * cos(i * step));
-            usleep(10000);
-        }
-    }
 
     gimbal.motorsOff();
-    */
-
     return 0;
 }
