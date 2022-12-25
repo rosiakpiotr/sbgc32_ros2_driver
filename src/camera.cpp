@@ -7,20 +7,25 @@ Camera::Camera(int captureWidth, int captureHeight, int framerate) : captureWidt
 {
 }
 
+Camera::~Camera()
+{
+    cap.release();
+}
+
 std::string Camera::createGstreamerPipeline()
 {
     return " libcamerasrc ! video/x-raw, "
            " width=(int)" +
            std::to_string(captureWidth) + ","
-                                           " height=(int)" +
+                                          " height=(int)" +
            std::to_string(captureHeight) + ","
-                                            " framerate=(fraction)" +
+                                           " framerate=(fraction)" +
            std::to_string(framerate) + "/1 !"
                                        " videoconvert ! videoscale !"
                                        " video/x-raw,"
                                        " width=(int)" +
            std::to_string(captureWidth) + ","
-                                           " height=(int)" +
+                                          " height=(int)" +
            std::to_string(captureHeight) + " ! appsink";
 }
 

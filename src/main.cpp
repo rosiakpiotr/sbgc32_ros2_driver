@@ -5,32 +5,15 @@
 #include "gimbal.hpp"
 #include "camera.hpp"
 
-#include <opencv2/objdetect/objdetect.hpp>
-
-#define CAPTURE_WIDTH 640
-#define CAPTURE_HEIGHT 480
-#define FRAMERATE 15
+#include <opencv2/opencv.hpp>
+// Parameters of video capture and display.
+#define CAPTURE_WIDTH 640  // 1280 ;
+#define CAPTURE_HEIGHT 480 // 720 ;
+#define FRAMERATE 30
 
 using namespace std;
 
 cv::Point przesuw_kat(0, 0), new_pos(0, 0);
-
-std::string gstreamer_pipeline(int capture_width, int capture_height, int framerate, int display_width, int display_height)
-{
-    return " libcamerasrc ! video/x-raw, "
-           " width=(int)" +
-           std::to_string(capture_width) + ","
-                                           " height=(int)" +
-           std::to_string(capture_height) + ","
-                                            " framerate=(fraction)" +
-           std::to_string(framerate) + "/1 !"
-                                       " videoconvert ! videoscale !"
-                                       " video/x-raw,"
-                                       " width=(int)" +
-           std::to_string(display_width) + ","
-                                           " height=(int)" +
-           std::to_string(display_height) + " ! appsink";
-}
 
 cv::Point detect(cv::Mat &frame)
 {
@@ -215,11 +198,11 @@ int main()
     bool success = cascade.load("./face.xml");
     if (!success)
     {
-        throw runtime_error("Problem while loading face model");
+        std::cout << "Problem while loading face model." << std::endl;
+        return -1;
     }
 
     Gimbal gimbal;
-
     try
     {
         gimbal.initializeDriver();
@@ -233,47 +216,22 @@ int main()
     gimbal.configControl();
     gimbal.initializeRealTimeData(150);
     gimbal.motorsOn();
-    // std::cout << cv::getBuildInformation();
 
-    // pipeline parameters
-
-    int capture_width = 640;  // 1280 ;
-    int capture_height = 480; // 720 ;
-    int framerate = 15;
-    int display_width = 640;  // 1280 ;
-    int display_height = 480; // 720 ;
-
-    // reset frame average
-    std::string pipeline = gstreamer_pipeline(capture_width, capture_height, framerate,
-                                              display_width, display_height);
-    std::cout << "Using pipeline: \n\t" << pipeline << "\n\n\n";
-
-    cv::VideoCapture cap(pipeline, cv::CAP_GSTREAMER);
-    if (!cap.isOpened())
+    Camera camera(CAPTURE_WIDTH, CAPTURE_HEIGHT, FRAMERATE);
+    if (!camera.isOpened())
     {
         std::cout << "Failed to open camera." << std::endl;
-        return (-1);
+        return -1;
     }
 
-    cv::namedWindow("Camera", cv::WINDOW_AUTOSIZE);
-
-    // cv::VideoCapture cap(0);
-    // cv::VideoCapture cap("v4l2src device=/dev/video0 io-mode=2 ! image/jpeg, width=(int)320, height=(int)240 ! nvjpegdec ! video/x-raw, format=I420 ! appsink", cv::CAP_GSTREAMER);
-    // cv::VideoCapture cap("v4l2src device=/dev/video0", cv::CAP_GSTREAMER);
-    // cv::VideoCapture cap("v4l2src device=/dev/video0 io-mode=2 ! video/x-raw, width=640, height=480, framerate=30/1 ! videoconvert ! videoscale ! appsink", cv::CAP_GSTREAMER);
-
-    // if (!cap.isOpened())
-    // {
-    //     cout << "Error opening video stream or file" << endl;
-    //     return -1;
-    // }
+    cv::namedWindow("Camera feed", cv::WINDOW_AUTOSIZE);
     // gimbal.movePitchTo(0);
     // gimbal.moveYawTo(0);
     // gimbal.moveRollTo(0);
     while (1)
     {
         cv::Mat frame;
-        cap >> frame;
+        camera >> frame;
         if (frame.empty())
             break;
 
@@ -294,9 +252,8 @@ int main()
             break;
     }
 
-    cap.release();
+    gimbal.motorsOff();
     cv::destroyAllWindows();
 
-    gimbal.motorsOff();
     return 0;
 }
