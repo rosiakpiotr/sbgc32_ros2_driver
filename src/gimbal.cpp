@@ -40,6 +40,19 @@ bool Gimbal::initFailed()
     return ((Driver_t *)SBGC_1.Drv)->devFD == -1;
 }
 
+void Gimbal::moveToAngles(Angles target, int speed)
+{
+    Control.AxisC[YAW].angle = DEGREE_TO_ANGLE(target.yaw);
+    Control.AxisC[PITCH].angle = DEGREE_TO_ANGLE(target.pitch);
+    Control.AxisC[ROLL].angle = DEGREE_TO_ANGLE(target.roll);
+
+    Control.AxisC[YAW].speed = SPEED_TO_VALUE(speed);
+    Control.AxisC[PITCH].speed = SPEED_TO_VALUE(speed);
+    Control.AxisC[ROLL].speed = SPEED_TO_VALUE(speed);
+
+    SBGC32_Control(&SBGC_1, &Control);
+}
+
 void Gimbal::configControl()
 {
     /* Control Configurations */
@@ -65,27 +78,6 @@ void Gimbal::configControl()
     Control.AxisC[YAW].speed = SPEED_TO_VALUE(20);
 
     SBGC32_ControlConfig(&SBGC_1, &ControlConfig, &Confirm);
-}
-
-void Gimbal::moveYawTo(int angle, int speed)
-{
-    Control.AxisC[YAW].angle = DEGREE_TO_ANGLE_INT(angle);
-    Control.AxisC[YAW].speed = SPEED_TO_VALUE(speed);
-    SBGC32_Control(&SBGC_1, &Control);
-}
-
-void Gimbal::movePitchTo(int angle, int speed)
-{
-    Control.AxisC[PITCH].angle = DEGREE_TO_ANGLE_INT(angle);
-    Control.AxisC[PITCH].speed = SPEED_TO_VALUE(speed);
-    SBGC32_Control(&SBGC_1, &Control);
-}
-
-void Gimbal::moveRollTo(int angle, int speed)
-{
-    Control.AxisC[ROLL].angle = DEGREE_TO_ANGLE_INT(angle);
-    Control.AxisC[ROLL].speed = SPEED_TO_VALUE(speed);
-    SBGC32_Control(&SBGC_1, &Control);
 }
 
 void Gimbal::motorsOn()

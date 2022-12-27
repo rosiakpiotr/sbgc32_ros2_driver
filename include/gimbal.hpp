@@ -32,11 +32,7 @@ public:
 
     bool initFailed();
 
-    void moveYawTo(int angle, int withSpeed = 70);
-
-    void movePitchTo(int angle, int withSpeed = 70);
-
-    void moveRollTo(int angle, int withSpeed = 70);
+    void moveToAngles(Angles target, int withSpeed = 70);
 
     void motorsOff();
 
