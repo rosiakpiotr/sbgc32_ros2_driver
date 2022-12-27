@@ -52,9 +52,9 @@ void Gimbal::configControl()
     ControlConfig.AxisCC[YAW].speedLPF = 7;
     ControlConfig.flags = RTCCF_CONTROL_CONFIG_FLAG_NO_CONFIRM;
 
-    Control.controlMode[ROLL] = CtrlM_MODE_ANGLE | CtrlF_CONTROL_FLAG_TARGET_PRECISE;
-    Control.controlMode[PITCH] = CtrlM_MODE_ANGLE | CtrlF_CONTROL_FLAG_TARGET_PRECISE;
-    Control.controlMode[YAW] = CtrlM_MODE_ANGLE | CtrlF_CONTROL_FLAG_TARGET_PRECISE;
+    Control.controlMode[ROLL] = CtrlM_MODE_ANGLE;
+    Control.controlMode[PITCH] = CtrlM_MODE_ANGLE;
+    Control.controlMode[YAW] = CtrlM_MODE_ANGLE;
 
     Control.AxisC[ROLL].angle = 0;
     Control.AxisC[PITCH].angle = 0;
