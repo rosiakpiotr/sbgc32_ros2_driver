@@ -94,23 +94,13 @@ void Gimbal::motorsOff()
 
 Angles Gimbal::getCurrentPosition()
 {
-    RealTimeDataCustom_t RealTimeDataCustom;
-    ui8 DataStreamBuff[20];
-    SBGC32_ParseDataStream(&SBGC_1, DataStreamBuff, (SBGC_Commands_t)DataStreamInterval.cmdID);
+    GetAngles_t rawAngles;
+    Angles gimbalDegreeAngles;
 
-    /* Preparing */
-    ui8 BuffRPx = 2; // ui16 timestampMs offset
+    SBGC32_GetAngles(&SBGC_1, &rawAngles);
+    gimbalDegreeAngles.pitch = rawAngles.AxisGA[PITCH].IMU_Angle;
+    gimbalDegreeAngles.yaw = rawAngles.AxisGA[YAW].IMU_Angle;
+    gimbalDegreeAngles.roll = rawAngles.AxisGA[ROLL].IMU_Angle;
 
-    BuffRPx += ConvertWithPM(RealTimeDataCustom.frameCamAngle, &DataStreamBuff[BuffRPx],
-                             sizeof(RealTimeDataCustom.targetAngles), PM_DEFAULT_16BIT);
-    // BuffRPx += ConvertWithPM(RealTimeDataCustom.gyroData, &DataStreamBuff[BuffRPx],
-    //                          sizeof(RealTimeDataCustom.gyroData), PM_DEFAULT_16BIT);
-    // BuffRPx += ConvertWithPM(RealTimeDataCustom.ACC_Data, &DataStreamBuff[BuffRPx],
-    //                          sizeof(RealTimeDataCustom.ACC_Data), PM_DEFAULT_16BIT);
-
-    return {
-        RealTimeDataCustom.frameCamAngle[PITCH] * 0.02197265625,
-        RealTimeDataCustom.frameCamAngle[YAW] * 0.02197265625,
-        RealTimeDataCustom.frameCamAngle[ROLL] * 0.02197265625,
-    };
+    return gimbalDegreeAngles;
 }

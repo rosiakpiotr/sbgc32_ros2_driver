@@ -73,6 +73,9 @@ int main()
         // Euler angles that gimbal should move by to keep detected object in the center of captured image.
         Angles offsetAngles = globalOffsetToCameraAngles(globalCenterOffset);
 
+        Angles currentPos = gimbal.getCurrentPosition();
+        gimbal.moveToAngles(currentPos + offsetAngles);
+
     } while (c != 0x1B); // 0x1B is 'Escape' key's ASCII code
 
     gimbal.motorsOff();

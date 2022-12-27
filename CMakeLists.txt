@@ -62,6 +62,7 @@ set(TRACKER_SOURCES
 
     src/gimbal.cpp
     src/camera.cpp
+    src/angles.cpp
     src/cascade-face-detector.cpp
     src/helpers.cpp
     )
