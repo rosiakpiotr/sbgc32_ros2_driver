@@ -23,8 +23,6 @@ public:
     ///////////////////////////////////////////////
     void initializeDriver(); // Throws an exception if initialization fails.
 
-    void initializeRealTimeData(uint16_t pollingInterval);
-
     void configControl();
 
     void motorsOn();

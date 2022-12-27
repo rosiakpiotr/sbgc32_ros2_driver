@@ -22,19 +22,6 @@ void Gimbal::initializeDriver()
                        PrintDebugData, GetTimeMs, SBGC_PROTOCOL_V2);
 }
 
-void Gimbal::initializeRealTimeData(uint16_t pollingInterval)
-{
-    /* Data Stream Configurations */
-    DataStreamInterval.cmdID = CMD_REALTIME_DATA_CUSTOM;
-    DataStreamInterval.intervalMs = pollingInterval;
-    DataStreamInterval.syncToData = STD_SYNC_OFF;
-
-    ui32 DataStreamIntervalConfig = RTDCF_STATOR_ROTOR_ANGLE; // | RTDCF_GYRO_DATA | RTDCF_ACC_DATA;
-    memcpy(DataStreamInterval.config, &DataStreamIntervalConfig, sizeof(DataStreamIntervalConfig));
-
-    SBGC32_RequestDataStream(&SBGC_1, &DataStreamInterval, &Confirm);
-}
-
 bool Gimbal::initFailed()
 {
     return ((Driver_t *)SBGC_1.Drv)->devFD == -1;

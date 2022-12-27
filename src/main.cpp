@@ -32,7 +32,6 @@ int main()
     }
 
     gimbal.configControl();
-    gimbal.initializeRealTimeData(150);
     gimbal.motorsOn();
 
     Camera camera(CAPTURE_WIDTH, CAPTURE_HEIGHT, FRAMERATE);
