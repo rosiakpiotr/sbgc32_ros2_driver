@@ -10,13 +10,7 @@
 #include "profiles/profiles.h"
 #include "realtime/realtime.h"
 #include "service/service.h"
-
-struct Angles
-{
-    double pitch;
-    double yaw;
-    double roll;
-};
+#include "angles.hpp"
 
 class Gimbal
 {

@@ -53,9 +53,17 @@ set(TRACKER_SOURCES
     # Sources and headers go here.
     include/gimbal.hpp
     include/camera.hpp
+    include/angles.hpp
+    include/cascade-face-detector.hpp
+    include/constants.hpp
+    include/helpers.hpp
+
+    src/main.cpp
+
     src/gimbal.cpp
     src/camera.cpp
-    src/main.cpp
+    src/cascade-face-detector.cpp
+    src/helpers.cpp
     )
 
 add_executable(${PROJECT_NAME} ${TRACKER_SOURCES} ${DRIVER_SOURCES})

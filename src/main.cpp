@@ -1,196 +1,14 @@
 #include <iostream>
 #include <exception>
-#include <math.h>
+
+#include <opencv2/opencv.hpp>
 
 #include "gimbal.hpp"
 #include "camera.hpp"
-
-#include <opencv2/opencv.hpp>
-// Parameters of video capture and display.
-#define CAPTURE_WIDTH 640  // 1280 ;
-#define CAPTURE_HEIGHT 480 // 720 ;
-#define FRAMERATE 30
-
-using namespace std;
-
-cv::Point przesuw_kat(0, 0), new_pos(0, 0);
-
-cv::Point detect(cv::Mat &frame)
-{
-    cv::Mat image = frame.clone();
-
-    cv::medianBlur(image, image, 5);
-    cv::Mat hsv_image;
-    cv::cvtColor(image, hsv_image, cv::COLOR_BGR2HSV);
-
-    //        captured_frame_bgr = cv2.cvtColor(captured_frame, cv2.COLOR_BGRA2BGR)
-    //    # First blur to reduce noise prior to color space conversion
-    //    captured_frame_bgr = cv2.medianBlur(captured_frame_bgr, 3)
-    //    # Convert to Lab color space, we only need to check one channel (a-channel) for red here
-    //    captured_frame_lab = cv2.cvtColor(captured_frame_bgr, cv2.COLOR_BGR2Lab)
-    // captured_frame_lab_red = cv2.inRange(captured_frame_lab, np.array([20, 150, 150]), np.array([190, 255, 255]))
-
-    int w = hsv_image.cols;
-    int h = hsv_image.rows;
-    //    cout << w << " " << h << endl;
-    auto color = hsv_image.at<cv::Vec3b>(w / 2, h / 2);
-    cout << int(color[0]) << " " << int(color[1]) << " " << int(color[2]) << endl;
-
-    int minS = 128;
-    int minV = 128;
-    cv::Mat lower_red_hue_range;
-    cv::Mat upper_red_hue_range;
-    cv::inRange(hsv_image, cv::Scalar(0, minS, minV), cv::Scalar(10, 255, 255), lower_red_hue_range);
-    cv::inRange(hsv_image, cv::Scalar(170, minS, minV), cv::Scalar(179, 255, 255), upper_red_hue_range);
-    cv::Mat red_hue_image;
-    cv::addWeighted(lower_red_hue_range, 1.0, upper_red_hue_range, 1.0, 0.0, red_hue_image);
-
-    cv::GaussianBlur(red_hue_image, red_hue_image, cv::Size(9, 9), 2, 2);
-
-    std::vector<cv::Vec3f> circles;
-    cv::HoughCircles(red_hue_image, circles, cv::HOUGH_GRADIENT, 1, red_hue_image.rows / 8, 100, 20, 100, 200);
-
-    cv::Point przesuw;
-    if (circles.size() > 0)
-    {
-        for (size_t current_circle = 0; current_circle < circles.size(); ++current_circle)
-        {
-            cv::Point center(std::round(circles[current_circle][0]), std::round(circles[current_circle][1]));
-            int radius = std::round(circles[current_circle][2]);
-
-            przesuw = center;
-
-            cv::circle(frame, center, radius, cv::Scalar(255, 0, 0), 2);
-        }
-
-        cv::cvtColor(red_hue_image, red_hue_image, cv::COLOR_GRAY2BGR);
-        cv::Mat result;
-        cv::addWeighted(red_hue_image, 1.0, frame, 1.0, 0.0, result);
-        result.copyTo(frame);
-
-        przesuw -= cv::Point(640 / 2, 480 / 2);
-
-        return przesuw;
-    }
-    else
-        return cv::Point(0, 0);
-}
-
-void katy(cv::Point &new_pos, Gimbal &gimbal)
-{
-    gimbal.movePitchTo(new_pos.y, 10);
-    gimbal.moveYawTo(new_pos.x, 10);
-}
-
-cv::Point move(cv::Point &przesuw, Angles current_pos)
-{
-    /*przesuw kat - roznica pozycji przedmiotu i środka obrazu w stopniach
-     * new_pos - globalny przesuw gimbala
-     */
-    /*
-   if (przesuw.x > -50 && przesuw.x < 50)
-   {
-       cout << "Jest w srodku po osi x" << endl
-            << "obecny kat " << current_pos.yaw << endl;
-       new_pos.x = current_pos.yaw;
-   }
-   else
-   {
-       przesuw_kat.x = (przesuw.x * 63) / 640;
-       cout << "Przesuniecie w osi x o " << przesuw.x << endl
-            << "przesun o kat " << przesuw_kat.x << "stopni" << endl
-            << "od " << current_pos.yaw << endl;
-
-       new_pos.x = current_pos.yaw + przesuw_kat.x;
-   }
-
-   if (przesuw.y > -50 && przesuw.y < 50)
-   {
-       cout << "Jest w srodku po osi y" << endl
-            << "obecny kat " << current_pos.pitch << endl;
-       new_pos.x = current_pos.pitch;
-   }
-   else
-   {
-
-       przesuw_kat.y = (przesuw.y * 63) / 640;
-       cout << "Przesuniecie w osi y o " << przesuw.y << endl
-            << "przesun o kat " << przesuw_kat.y << "stopni" << endl
-            << "od " << current_pos.pitch << endl;
-
-       new_pos.y = current_pos.pitch + przesuw_kat.y;
-   }
-   return new_pos;
-   */
-    double kat = 10;
-    /*
-    if (przesuw.x > -50 && przesuw.x < 50)
-    {
-        cout << "Jest w srodku po osi x" << endl
-             << "obecny kat " << current_pos.yaw << endl;
-        new_pos.y = 0;
-    }
-    else
-    {
-        double r = przesuw.x/przesuw.y;
-        przesuw_kat.x = (przesuw.x * 63) / 640;
-        cout << "Przesuniecie w osi x o " << przesuw.x << endl
-             << "przesun o kat " << przesuw_kat.x << "stopni" << endl
-             << "od " << current_pos.yaw << endl;
-
-        new_pos.x = current_pos.yaw+r*kat;
-    }
-    */
-
-    if (przesuw.y > -50 && przesuw.y < 50)
-    {
-        cout << "Jest w srodku po osi y" << endl
-             << "obecny kat " << current_pos.pitch << endl;
-        new_pos.y = 0;
-    }
-    else
-    {
-
-        przesuw_kat.y = (przesuw.y * 63) / 640;
-        cout << "Przesuniecie w osi y o " << przesuw.y << endl
-             << "przesun o kat " << przesuw_kat.y << "stopni" << endl
-             << "od " << current_pos.pitch << endl;
-
-        new_pos.y = current_pos.pitch - kat;
-    }
-    return new_pos;
-}
-
-cv::Point detect_face(cv::Mat &frame, cv::CascadeClassifier &cascade, int minSize, int maxSize, double confidence)
-{
-    cv::Mat gray;
-    cv::cvtColor(frame, gray, cv::COLOR_BGR2GRAY);
-    vector<cv::Rect> result;
-    vector<int> levels;
-    vector<double> weights;
-    cascade.detectMultiScale(gray, result, levels, weights, 1.1, 3, 0 | cv::CASCADE_SCALE_IMAGE,
-                             cv::Size(minSize, minSize), cv::Size(maxSize, maxSize), true);
-    cv::Point przesuw;
-    if (result.size() > 0)
-    {
-        for (int i = 0; i < result.size(); i++)
-        {
-            if (weights[i] > confidence)
-            {
-                cv::rectangle(frame, result[i], cv::Scalar(0, 255, 0), 2);
-                int x = result[i].x + result[i].width / 2;
-                int y = result[i].y + result[i].height / 2;
-                cv::circle(frame, cv::Point(x, y), 10, cv::Scalar(0, 255, 0), 2);
-                przesuw = cv::Point(x, y);
-            }
-        }
-        przesuw -= cv::Point(640 / 2, 480 / 2);
-
-        return przesuw;
-    }
-    else
-        return cv::Point(0, 0);
-}
+#include "cascade-face-detector.hpp"
+#include "helpers.hpp"
+#include "constants.hpp"
+#include "angles.hpp"
 
 int main()
 {
@@ -209,7 +27,7 @@ int main()
     }
     catch (const std::runtime_error &e)
     {
-        std::cerr << e.what() << '\n';
+        std::cerr << e.what() << std::endl;
         return -1;
     }
 
@@ -225,32 +43,37 @@ int main()
     }
 
     cv::namedWindow("Camera feed", cv::WINDOW_AUTOSIZE);
-    // gimbal.movePitchTo(0);
-    // gimbal.moveYawTo(0);
-    // gimbal.moveRollTo(0);
-    while (1)
+    const int minFaceSize = 100;
+    const int maxFaceSize = 600;
+    const float detectionCondidence = 1.0;
+    char c;
+    do
     {
+        c = (char)cv::waitKey(25);
+
         cv::Mat frame;
         camera >> frame;
         if (frame.empty())
             break;
 
-        system("clear");
-        auto przesuw = detect_face(frame, cascade, 100, 600, 0.0);
-        // auto przesuw = detect(frame); //wykrywanie koloru
-        cv::Point kat = move(przesuw, gimbal.getCurrentPosition());
-        katy(kat, gimbal);
-
+        auto detector = CascadeFaceDetector(&cascade, frame,
+                                            minFaceSize, maxFaceSize,
+                                            detectionCondidence);
+        detector.showResults(frame);
         imshow("Frame", frame);
-        // Angles angles = gimbal.getCurrentPosition();
-        // cout << "Pitch: " << angles.pitch << endl
-        //      << "Yaw" << angles.yaw << endl
-        //      << "Roll" << angles.roll << endl;
 
-        char c = (char)cv::waitKey(25);
-        if (c == 27)
-            break;
-    }
+        if (!detector.faceDetected())
+            continue;
+
+        cv::Point faceCenter = detector.centerOfFirstHit();
+        // Move origin of the detected face's center from frame's left top to frame's center.
+        // This way we get offsets from the center giving us information on how to move
+        // the camera to keep detected object in the center.
+        cv::Point globalCenterOffset = faceCenter - cv::Point(CAPTURE_WIDTH / 2, CAPTURE_HEIGHT / 2);
+        // Euler angles that gimbal should move by to keep detected object in the center of captured image.
+        Angles offsetAngles = globalOffsetToCameraAngles(globalCenterOffset);
+
+    } while (c != 0x1B); // 0x1B is 'Escape' key's ASCII code
 
     gimbal.motorsOff();
     cv::destroyAllWindows();
