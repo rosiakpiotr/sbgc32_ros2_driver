@@ -12,6 +12,12 @@ Camera::~Camera()
     cap.release();
 }
 
+cv::Mat &operator>>(Camera &camera, cv::Mat &image)
+{
+    camera >> image;
+    return image;
+}
+
 std::string Camera::createGstreamerPipeline()
 {
     return " libcamerasrc ! video/x-raw, "

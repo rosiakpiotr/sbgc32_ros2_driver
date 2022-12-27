@@ -26,9 +26,6 @@ private:
     cv::VideoCapture cap;
 };
 
-cv::Mat &operator>>(Camera &camera, cv::Mat &image)
-{
-    camera >> image;
-}
+cv::Mat &operator>>(Camera &camera, cv::Mat &image);
 
 #endif
