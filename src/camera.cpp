@@ -3,7 +3,8 @@
 Camera::Camera(int captureWidth, int captureHeight, int framerate) : captureWidth(captureWidth),
                                                                      captureHeight(captureHeight),
                                                                      framerate(framerate),
-                                                                     cap(createGstreamerPipeline(), cv::CAP_GSTREAMER)
+                                                                     cap(0)
+//                                                                     cap(createGstreamerPipeline(), cv::CAP_GSTREAMER)
 {
 }
 

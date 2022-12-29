@@ -1,5 +1,5 @@
 cmake_minimum_required(VERSION 3.1)
-project(gimbal-viewfinder)
+project(gimbal)
 
 set(CMAKE_CXX_STANDARD 17)
 set(CMAKE_CXX_STANDARD_REQUIRED TRUE)
@@ -44,28 +44,32 @@ set(DRIVER_SOURCES
 
 
 include_directories(
-    include
-    ${OpenCV_INCLUDE_DIRS}
-    ${Boost_INCLUDE_DIRS}
+        include
+        ${OpenCV_INCLUDE_DIRS}
+        ${Boost_INCLUDE_DIRS}
 )
 
 set(TRACKER_SOURCES
-    # Sources and headers go here.
-    include/gimbal.hpp
-    include/camera.hpp
-    include/angles.hpp
-    include/cascade-face-detector.hpp
-    include/constants.hpp
-    include/helpers.hpp
+        # Sources and headers go here.
+        include/gimbal.hpp
+        include/gimbals/real.hpp
+        include/gimbals/fake.hpp
+        include/camera.hpp
+        include/angles.hpp
+        include/cascade-face-detector.hpp
+        include/constants.hpp
+        include/helpers.hpp
 
-    src/main.cpp
+        src/main.cpp
 
-    src/gimbal.cpp
-    src/camera.cpp
-    src/angles.cpp
-    src/cascade-face-detector.cpp
-    src/helpers.cpp
-    )
+        src/gimbal.cpp
+        src/gimbals/real.cpp
+        src/gimbals/fake.cpp
+        src/camera.cpp
+        src/angles.cpp
+        src/cascade-face-detector.cpp
+        src/helpers.cpp
+        )
 
 add_executable(${PROJECT_NAME} ${TRACKER_SOURCES} ${DRIVER_SOURCES})
 target_include_directories(${PROJECT_NAME} PRIVATE ${PATH_TO_DRIVER_SOURCES})
@@ -77,4 +81,4 @@ target_link_libraries(${PROJECT_NAME} ${OpenCV_LIBS} ${DLIB_LIB} ${Boost_SYSTEM_
 # TODO: add testing conditional compilation
 if (NO)
     add_subdirectory(tests)
-endif()
+endif ()

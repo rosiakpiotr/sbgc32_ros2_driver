@@ -1,0 +1,19 @@
+#ifndef GIMBAL_FAKE_HPP
+#define GIMBAL_FAKE_HPP
+
+#include "gimbal.hpp"
+
+class FakeGimbal : public Gimbal
+{
+public:
+    FakeGimbal();
+
+    void motorsOn() override;
+    void motorsOff() override;
+    void moveToAngles(Angles target, int withSpeed = 70) override;
+    Angles getCurrentPosition() override;
+
+    virtual ~FakeGimbal();
+};
+
+#endif
