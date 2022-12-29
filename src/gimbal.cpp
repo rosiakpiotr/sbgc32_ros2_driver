@@ -27,6 +27,19 @@ bool Gimbal::initFailed()
     return ((Driver_t *)SBGC_1.Drv)->devFD == -1;
 }
 
+void Gimbal::moveToAngles(Angles target, int speed)
+{
+    Control.AxisC[YAW].angle = DEGREE_TO_ANGLE(target.yaw);
+    Control.AxisC[PITCH].angle = DEGREE_TO_ANGLE(target.pitch);
+    Control.AxisC[ROLL].angle = DEGREE_TO_ANGLE(target.roll);
+
+    Control.AxisC[YAW].speed = SPEED_TO_VALUE(speed);
+    Control.AxisC[PITCH].speed = SPEED_TO_VALUE(speed);
+    Control.AxisC[ROLL].speed = SPEED_TO_VALUE(speed);
+
+    SBGC32_Control(&SBGC_1, &Control);
+}
+
 void Gimbal::configControl()
 {
     /* Control Configurations */
@@ -39,9 +52,9 @@ void Gimbal::configControl()
     ControlConfig.AxisCC[YAW].speedLPF = 7;
     ControlConfig.flags = RTCCF_CONTROL_CONFIG_FLAG_NO_CONFIRM;
 
-    Control.controlMode[ROLL] = CtrlM_MODE_ANGLE | CtrlF_CONTROL_FLAG_TARGET_PRECISE;
-    Control.controlMode[PITCH] = CtrlM_MODE_ANGLE | CtrlF_CONTROL_FLAG_TARGET_PRECISE;
-    Control.controlMode[YAW] = CtrlM_MODE_ANGLE | CtrlF_CONTROL_FLAG_TARGET_PRECISE;
+    Control.controlMode[ROLL] = CtrlM_MODE_ANGLE;
+    Control.controlMode[PITCH] = CtrlM_MODE_ANGLE;
+    Control.controlMode[YAW] = CtrlM_MODE_ANGLE;
 
     Control.AxisC[ROLL].angle = 0;
     Control.AxisC[PITCH].angle = 0;
@@ -54,27 +67,6 @@ void Gimbal::configControl()
     SBGC32_ControlConfig(&SBGC_1, &ControlConfig, &Confirm);
 }
 
-void Gimbal::moveYawTo(int angle, int speed)
-{
-    Control.AxisC[YAW].angle = DEGREE_TO_ANGLE_INT(angle);
-    Control.AxisC[YAW].speed = SPEED_TO_VALUE(speed);
-    SBGC32_Control(&SBGC_1, &Control);
-}
-
-void Gimbal::movePitchTo(int angle, int speed)
-{
-    Control.AxisC[PITCH].angle = DEGREE_TO_ANGLE_INT(angle);
-    Control.AxisC[PITCH].speed = SPEED_TO_VALUE(speed);
-    SBGC32_Control(&SBGC_1, &Control);
-}
-
-void Gimbal::moveRollTo(int angle, int speed)
-{
-    Control.AxisC[ROLL].angle = DEGREE_TO_ANGLE_INT(angle);
-    Control.AxisC[ROLL].speed = SPEED_TO_VALUE(speed);
-    SBGC32_Control(&SBGC_1, &Control);
-}
-
 void Gimbal::motorsOn()
 {
     SBGC32_SetMotorsON(&SBGC_1, &Confirm);
@@ -85,4 +77,17 @@ void Gimbal::motorsOff()
 {
     SBGC32_SetMotorsOFF(&SBGC_1, MM_SAFE_STOP, &Confirm);
     // std::cout << "Motors turned off." << std::endl;
+}
+
+Angles Gimbal::getCurrentPosition()
+{
+    GetAngles_t rawAngles;
+    Angles gimbalDegreeAngles;
+
+    SBGC32_GetAngles(&SBGC_1, &rawAngles);
+    gimbalDegreeAngles.pitch = rawAngles.AxisGA[PITCH].IMU_Angle;
+    gimbalDegreeAngles.yaw = rawAngles.AxisGA[YAW].IMU_Angle;
+    gimbalDegreeAngles.roll = rawAngles.AxisGA[ROLL].IMU_Angle;
+
+    return gimbalDegreeAngles;
 }
