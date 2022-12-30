@@ -2,30 +2,27 @@
 #define CAMERA_HPP
 
 #include <string>
+
 #include <opencv2/core/mat.hpp>
 #include <opencv2/videoio.hpp>
 
 class Camera
 {
+private:
+    cv::VideoCapture cap;
+
 public:
-    Camera(int captureWidth, int captureHeight, int framerate = 30);
+    Camera();
+    Camera(const std::string &filename, int apiPreference = cv::CAP_ANY);
 
     ~Camera();
 
-    bool isOpened();
-
     friend cv::Mat &operator>>(Camera &camera, cv::Mat &image);
-
-private:
-    std::string createGstreamerPipeline();
-
-    int captureWidth;
-    int captureHeight;
-    int framerate;
-
-    cv::VideoCapture cap;
 };
 
 cv::Mat &operator>>(Camera &camera, cv::Mat &image);
+
+Camera getRaspberyPiCamera(int captureWidth, int captureHeight, int framerate = 30);
+Camera getDefaultCamera();
 
 #endif

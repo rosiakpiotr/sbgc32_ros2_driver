@@ -1,5 +1,7 @@
 #include "angles.hpp"
 
+using namespace std;
+
 Angles::Angles()
     : pitch(0), yaw(0), roll(0)
 {}
@@ -17,10 +19,10 @@ Angles Angles::operator+(Angles const &right)
     return result;
 }
 
-std::ostream &operator<<(std::ostream &out, const Angles &angles)
+ostream &operator<<(ostream &out, const Angles &angles)
 {
-    out << "(" << angles.pitch << " ";
-    out << angles.yaw << " ";
+    out << "(" << angles.pitch << ",";
+    out << angles.yaw << ",";
     out << angles.roll << ")";
     return out;
 }

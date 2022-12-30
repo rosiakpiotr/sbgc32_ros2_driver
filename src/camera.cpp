@@ -1,11 +1,22 @@
 #include "camera.hpp"
 
-Camera::Camera(int captureWidth, int captureHeight, int framerate) : captureWidth(captureWidth),
-                                                                     captureHeight(captureHeight),
-                                                                     framerate(framerate),
-                                                                     cap(0)
-//                                                                     cap(createGstreamerPipeline(), cv::CAP_GSTREAMER)
+using namespace std;
+
+
+Camera::Camera()
+    : cap(0)
 {
+    if (!cap.isOpened()) {
+        throw runtime_error("Failed to open camera.");
+    }
+}
+
+Camera::Camera(const std::string &filename, int apiPreference)
+    : cap(filename, apiPreference)
+{
+    if (!cap.isOpened()) {
+        throw runtime_error("Failed to open camera.");
+    }
 }
 
 Camera::~Camera()
@@ -15,28 +26,30 @@ Camera::~Camera()
 
 cv::Mat &operator>>(Camera &camera, cv::Mat &image)
 {
-    camera >> image;
+    camera.cap >> image;
     return image;
 }
 
-std::string Camera::createGstreamerPipeline()
+Camera getRaspberyPiCamera(int captureWidth, int captureHeight, int framerate)
 {
-    return " libcamerasrc ! video/x-raw, "
-           " width=(int)" +
-           std::to_string(captureWidth) + ","
-                                          " height=(int)" +
-           std::to_string(captureHeight) + ","
-                                           " framerate=(fraction)" +
-           std::to_string(framerate) + "/1 !"
-                                       " videoconvert ! videoscale !"
-                                       " video/x-raw,"
-                                       " width=(int)" +
-           std::to_string(captureWidth) + ","
-                                          " height=(int)" +
-           std::to_string(captureHeight) + " ! appsink";
+    string filename = " libcamerasrc ! video/x-raw, "
+                      " width=(int)" +
+        std::to_string(captureWidth) + ","
+                                       " height=(int)" +
+        std::to_string(captureHeight) + ","
+                                        " framerate=(fraction)" +
+        std::to_string(framerate) + "/1 !"
+                                    " videoconvert ! videoscale !"
+                                    " video/x-raw,"
+                                    " width=(int)" +
+        std::to_string(captureWidth) + ","
+                                       " height=(int)" +
+        std::to_string(captureHeight) + " ! appsink";
+
+    return Camera(filename, cv::CAP_GSTREAMER);
 }
 
-bool Camera::isOpened()
+Camera getDefaultCamera()
 {
-    return cap.isOpened();
+    return Camera();
 }

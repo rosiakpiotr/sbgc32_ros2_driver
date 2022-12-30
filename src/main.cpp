@@ -9,38 +9,57 @@
 #include "gimbals/fake.hpp"
 
 #include "camera.hpp"
-#include "cascade-face-detector.hpp"
+
+#include "detector.hpp"
+#include "detectors/cascade.hpp"
+
 #include "helpers.hpp"
 #include "constants.hpp"
 #include "angles.hpp"
-
-
 
 
 using namespace std;
 
 int main()
 {
-    cv::CascadeClassifier cascade;
-    bool success = cascade.load("./face.xml");
-    if (!success)
-    {
-        std::cout << "Problem while loading face model." << std::endl;
-        return -1;
-    }
+    try {
+        // Camera camera = getRaspberyPiCamera(CAPTURE_WIDTH, CAPTURE_HEIGHT, FRAMERATE);
+        // shared_ptr<Gimbal> gimbal = make_shared<RealGimbal>();
 
-    try
-    {
+        Camera camera = getDefaultCamera();
         shared_ptr<Gimbal> gimbal = make_shared<FakeGimbal>();
+
+        shared_ptr<Detector> detector = make_shared<CascadeDetector>("./face.xml", 100, 600, 1.0, true);
+
         gimbal->motorsOn();
-        gimbal->moveToAngles(Angles(30, 20, 10), 40);
+
+        cv::namedWindow("Frame", cv::WINDOW_AUTOSIZE);
+        char c;
+        do {
+            c = (char) cv::waitKey(25);
+
+            cv::Mat frame;
+            camera >> frame;
+            if (frame.empty())
+                break;
+
+            cv::Point point = detector->detect(frame);
+            gimbal->moveToAngles(Angles(30, 20, 10), 40);
+
+            imshow("Frame", frame);
+
+        }
+        while (c != 0x1B); // 0x1B is 'Escape' key's ASCII code
+
         gimbal->motorsOff();
     }
-    catch (const exception &e)
-    {
+    catch (const exception &e) {
         cerr << e.what() << endl;
         return -1;
     }
+
+    cv::destroyAllWindows();
+    return 0;
 
 //    Gimbal gimbal;
 //    try
@@ -103,5 +122,4 @@ int main()
 //    gimbal.motorsOff();
 //    cv::destroyAllWindows();
 
-    return 0;
 }

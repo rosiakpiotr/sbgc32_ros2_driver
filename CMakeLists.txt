@@ -56,7 +56,8 @@ set(TRACKER_SOURCES
         include/gimbals/fake.hpp
         include/camera.hpp
         include/angles.hpp
-        include/cascade-face-detector.hpp
+        include/detector.hpp
+        include/detectors/cascade.hpp
         include/constants.hpp
         include/helpers.hpp
 
@@ -67,7 +68,8 @@ set(TRACKER_SOURCES
         src/gimbals/fake.cpp
         src/camera.cpp
         src/angles.cpp
-        src/cascade-face-detector.cpp
+        src/detector.cpp
+        src/detectors/cascade.cpp
         src/helpers.cpp
         )
 
