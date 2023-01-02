@@ -2,8 +2,8 @@
 
 #include "constants.hpp"
 
-GlobalStrategy::GlobalStrategy(bool show)
-    : Strategy(show)
+GlobalStrategy::GlobalStrategy(double focalLength, bool show)
+    : focalLength(focalLength), Strategy(show)
 {}
 
 Angles GlobalStrategy::offset(cv::Mat &frame, cv::Point point)
@@ -12,8 +12,8 @@ Angles GlobalStrategy::offset(cv::Mat &frame, cv::Point point)
     cv::Point center(size.width / 2, size.height / 2);
     cv::Point offset = point - center;
     Angles angles;
-    angles.pitch = (offset.y * double(CAMERA_FOCAL_LENGTH)) / ((double) size.height);
-    angles.yaw = (offset.x * double(CAMERA_FOCAL_LENGTH)) / ((double) size.width);
+    angles.pitch = (offset.y * focalLength) / ((double) size.height);
+    angles.yaw = (offset.x * focalLength) / ((double) size.width);
     angles.roll = 0;
 
     if(show) {

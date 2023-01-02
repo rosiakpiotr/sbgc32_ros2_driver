@@ -34,8 +34,8 @@ int main()
 
         shared_ptr<Detector> detector = make_shared<CascadeDetector>("./face.xml", 100, 600, 1.0, true);
 
-        // shared_ptr<Strategy> strategy = make_shared<GlobalStrategy>(true);
-        shared_ptr<Strategy> strategy = make_shared<LocalStrategy>(2.0,true);
+        shared_ptr<Strategy> strategy = make_shared<GlobalStrategy>(CAMERA_FOCAL_LENGTH, true);
+        // shared_ptr<Strategy> strategy = make_shared<LocalStrategy>(2.0,true);
 
         Controller controller(detector, gimbal, strategy, 70, 1, true);
 

@@ -8,10 +8,11 @@
 class GlobalStrategy : public Strategy
 {
 protected:
+    double focalLength;
     bool show;
 
 public:
-    GlobalStrategy(bool show);
+    GlobalStrategy(double focalLength, bool show);
 
     Angles offset(cv::Mat &frame, cv::Point point) override;
 
