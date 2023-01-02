@@ -23,10 +23,10 @@ using namespace std;
 int main()
 {
     try {
-        // Camera camera = getRaspberyPiCamera(CAPTURE_WIDTH, CAPTURE_HEIGHT, FRAMERATE);
+        // Camera camera = Camera(LIBCAMERA,CAPTURE_WIDTH, CAPTURE_HEIGHT, FRAMERATE);
         // shared_ptr<Gimbal> gimbal = make_shared<RealGimbal>();
 
-        Camera camera = getDefaultCamera();
+        Camera camera = Camera(V4L2,CAPTURE_WIDTH, CAPTURE_HEIGHT, FRAMERATE);
         shared_ptr<Gimbal> gimbal = make_shared<FakeGimbal>();
 
         shared_ptr<Detector> detector = make_shared<CascadeDetector>("./face.xml", 100, 600, 1.0, true);
@@ -43,8 +43,10 @@ int main()
             if (frame.empty())
                 break;
 
-            cv::Point point = detector->detect(frame);
-            gimbal->moveToAngles(Angles(30, 20, 10), 40);
+            boost::optional<cv::Point> point = detector->detect(frame);
+            if(point) {
+                gimbal->moveToAngles(Angles(30, 20, 10), 40);
+            }
 
             imshow("Frame", frame);
 

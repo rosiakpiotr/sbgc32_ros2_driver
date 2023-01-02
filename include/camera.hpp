@@ -6,14 +6,16 @@
 #include <opencv2/core/mat.hpp>
 #include <opencv2/videoio.hpp>
 
+const std::string V4L2 = "v4l2src";
+const std::string LIBCAMERA = "libcamerasrc";
+
 class Camera
 {
 private:
     cv::VideoCapture cap;
 
 public:
-    Camera();
-    Camera(const std::string &filename, int apiPreference = cv::CAP_ANY);
+    Camera(const std::string &source, int captureWidth, int captureHeight, int framerate = 30);
 
     ~Camera();
 
@@ -21,8 +23,5 @@ public:
 };
 
 cv::Mat &operator>>(Camera &camera, cv::Mat &image);
-
-Camera getRaspberyPiCamera(int captureWidth, int captureHeight, int framerate = 30);
-Camera getDefaultCamera();
 
 #endif

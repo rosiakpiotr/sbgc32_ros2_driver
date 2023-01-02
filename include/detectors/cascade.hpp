@@ -3,6 +3,7 @@
 
 #include <vector>
 #include <memory>
+
 #include <opencv2/opencv.hpp>
 
 #include "detector.hpp"
@@ -18,7 +19,7 @@ private:
 public:
     CascadeDetector(std::string filename, int minSize, int maxSize, float detectionConfidence, bool show);
 
-    cv::Point detect(cv::Mat &frame) override;
+    boost::optional<cv::Point> detect(cv::Mat &frame) override;
 
     virtual ~CascadeDetector();
 };
