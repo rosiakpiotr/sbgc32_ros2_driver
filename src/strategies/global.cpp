@@ -8,10 +8,11 @@ GlobalStrategy::GlobalStrategy(bool show)
 
 Angles GlobalStrategy::offset(cv::Mat &frame, cv::Point point)
 {
-    cv::Point offset = point - cv::Point(CAPTURE_WIDTH / 2, CAPTURE_HEIGHT / 2);
+    cv::Size size = frame.size();
+    cv::Point offset = point - cv::Point(size.width / 2, size.height / 2);
     Angles angles;
-    angles.pitch = offset.y * CAMERA_FOCAL_LENGTH / ((double) CAPTURE_HEIGHT);
-    angles.yaw = offset.x * CAMERA_FOCAL_LENGTH / ((double) CAPTURE_WIDTH);
+    angles.pitch = (offset.y * double(CAMERA_FOCAL_LENGTH)) / ((double) size.height);
+    angles.yaw = (offset.x * double(CAMERA_FOCAL_LENGTH)) / ((double) size.width);
     angles.roll = 0;
     return angles;
 }

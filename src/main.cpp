@@ -17,6 +17,8 @@
 
 #include "strategies/global.hpp"
 
+#include "constants.hpp"
+
 using namespace std;
 
 int main()
