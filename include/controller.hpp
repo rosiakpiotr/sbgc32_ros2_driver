@@ -29,6 +29,7 @@ protected:
     std::shared_ptr<Detector> detector;
     std::shared_ptr<Gimbal> gimbal;
     std::shared_ptr<Strategy> strategy;
+    int withSpeed;
     unsigned int step;
     bool show;
 
@@ -36,6 +37,7 @@ public:
     Controller(const std::shared_ptr<Detector> &detector,
                const std::shared_ptr<Gimbal> &gimbal,
                const std::shared_ptr<Strategy> &strategy,
+               int withSpeed,
                unsigned int step,
                bool show);
 

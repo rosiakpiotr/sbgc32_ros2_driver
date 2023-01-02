@@ -19,9 +19,10 @@ Strategy::~Strategy()
 Controller::Controller(const std::shared_ptr<Detector> &detector,
                        const std::shared_ptr<Gimbal> &gimbal,
                        const std::shared_ptr<Strategy> &strategy,
+                       int withSpeed,
                        unsigned int step,
                        bool show)
-    : detector(detector), gimbal(gimbal), strategy(strategy), step(step), show(show)
+    : detector(detector), gimbal(gimbal), strategy(strategy), withSpeed(withSpeed), step(step), show(show)
 {}
 
 void Controller::control(unsigned long long count, cv::Mat &frame)
@@ -34,7 +35,7 @@ void Controller::control(unsigned long long count, cv::Mat &frame)
             offset = strategy->offset(frame, *point);
         }
         Angles target = current + offset;
-        gimbal->moveToAngles(target);
+        gimbal->moveToAngles(target, withSpeed);
 
         if (show) {
             auto font = cv::FONT_HERSHEY_PLAIN;

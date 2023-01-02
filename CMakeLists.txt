@@ -60,6 +60,7 @@ set(TRACKER_SOURCES
         include/detectors/cascade.hpp
         include/controller.hpp
         include/strategies/global.hpp
+        include/strategies/local.hpp
         include/constants.hpp
 
         src/main.cpp
@@ -73,6 +74,7 @@ set(TRACKER_SOURCES
         src/detectors/cascade.cpp
         src/controller.cpp
         src/strategies/global.cpp
+        src/strategies/local.cpp
         )
 
 add_executable(${PROJECT_NAME} ${TRACKER_SOURCES} ${DRIVER_SOURCES})

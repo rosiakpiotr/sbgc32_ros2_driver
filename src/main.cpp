@@ -16,6 +16,7 @@
 #include "controller.hpp"
 
 #include "strategies/global.hpp"
+#include "strategies/local.hpp"
 
 #include "constants.hpp"
 
@@ -32,9 +33,11 @@ int main()
         shared_ptr<Gimbal> gimbal = make_shared<FakeGimbal>();
 
         shared_ptr<Detector> detector = make_shared<CascadeDetector>("./face.xml", 100, 600, 1.0, true);
-        shared_ptr<Strategy> strategy = make_shared<GlobalStrategy>(true);
 
-        Controller controller(detector, gimbal, strategy, 1, true);
+        // shared_ptr<Strategy> strategy = make_shared<GlobalStrategy>(true);
+        shared_ptr<Strategy> strategy = make_shared<LocalStrategy>(2.0,true);
+
+        Controller controller(detector, gimbal, strategy, 70, 1, true);
 
         gimbal->motorsOn();
 
