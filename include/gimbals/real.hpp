@@ -29,7 +29,7 @@ public:
     void motorsOn() override;
     void motorsOff() override;
     void moveToAngles(Angles target, int withSpeed = 70) override;
-    Angles getCurrentPosition() override;
+    Angles getCurrentAngles() override;
 
     virtual ~RealGimbal();
 };

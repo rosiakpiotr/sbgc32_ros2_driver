@@ -58,8 +58,9 @@ set(TRACKER_SOURCES
         include/angles.hpp
         include/detector.hpp
         include/detectors/cascade.hpp
+        include/controller.hpp
+        include/strategies/global.hpp
         include/constants.hpp
-        include/helpers.hpp
 
         src/main.cpp
 
@@ -70,7 +71,8 @@ set(TRACKER_SOURCES
         src/angles.cpp
         src/detector.cpp
         src/detectors/cascade.cpp
-        src/helpers.cpp
+        src/controller.cpp
+        src/strategies/global.cpp
         )
 
 add_executable(${PROJECT_NAME} ${TRACKER_SOURCES} ${DRIVER_SOURCES})

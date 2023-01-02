@@ -24,7 +24,7 @@ void FakeGimbal::moveToAngles(Angles target, int speed)
     cout << "with speed " << speed << "." <<  endl;
 }
 
-Angles FakeGimbal::getCurrentPosition()
+Angles FakeGimbal::getCurrentAngles()
 {
     cout << "Current position." << endl;
     return Angles();

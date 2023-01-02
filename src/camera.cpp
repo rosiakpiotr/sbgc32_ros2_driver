@@ -21,6 +21,15 @@ string getFileName(const string &source, int captureWidth, int captureHeight, in
     return filename;
 }
 
+
+Camera::Camera()
+{
+    cap.open(0);
+    if (!cap.isOpened()) {
+        throw runtime_error("Failed to open camera.");
+    }
+}
+
 Camera::Camera(const string &source, int captureWidth, int captureHeight, int framerate)
 {
     cap.open(getFileName(source, captureWidth, captureHeight, framerate), cv::CAP_GSTREAMER);

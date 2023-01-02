@@ -15,6 +15,7 @@ private:
     cv::VideoCapture cap;
 
 public:
+    Camera();
     Camera(const std::string &source, int captureWidth, int captureHeight, int framerate = 30);
 
     ~Camera();

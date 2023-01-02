@@ -270,7 +270,7 @@ TxRxStatus_t SBGC32_CorrectionGyro (GeneralSBGC_t *generalSBGC, const GyroCorrec
  *
  *	@attention	The AHRS_Helper_t.mode parameter must be
  *				1-byte size (ui8) when working with SimpleBGC
- *				controllers in which the firmware is below 2.69b5
+ *				strategies in which the firmware is below 2.69b5
  *
  *	@note	Parameter AHRS_Helper_t.mode is very
  *			important for this command\n

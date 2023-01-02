@@ -86,7 +86,7 @@ void RealGimbal::moveToAngles(Angles target, int speed)
     SBGC32_Control(&SBGC_1, &Control);
 }
 
-Angles RealGimbal::getCurrentPosition()
+Angles RealGimbal::getCurrentAngles()
 {
     GetAngles_t rawAngles;
     Angles gimbalDegreeAngles;
