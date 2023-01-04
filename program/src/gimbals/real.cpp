@@ -92,14 +92,13 @@ Angles RealGimbal::getCurrentAngles()
     Angles gimbalDegreeAngles;
 
     SBGC32_GetAngles(&SBGC_1, &rawAngles);
-    gimbalDegreeAngles.pitch = rawAngles.AxisGA[PITCH].IMU_Angle;
-    gimbalDegreeAngles.yaw = rawAngles.AxisGA[YAW].IMU_Angle;
-    gimbalDegreeAngles.roll = rawAngles.AxisGA[ROLL].IMU_Angle;
+    gimbalDegreeAngles.pitch = rawAngles.AxisGA[PITCH].IMU_Angle * 0.02197265625;
+    gimbalDegreeAngles.yaw = rawAngles.AxisGA[YAW].IMU_Angle * 0.02197265625;
+    gimbalDegreeAngles.roll = rawAngles.AxisGA[ROLL].IMU_Angle * 0.02197265625;
 
     return gimbalDegreeAngles;
 }
 
 RealGimbal::~RealGimbal()
 {
-
 }
