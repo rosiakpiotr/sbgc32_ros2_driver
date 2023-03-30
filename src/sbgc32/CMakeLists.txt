@@ -20,10 +20,32 @@ find_package(ament_cmake REQUIRED)
 find_package(rclcpp REQUIRED)
 find_package(geometry_msgs REQUIRED)
 
-# Add executable, so it can be run by ros2 command
-add_executable(driver src/sbgc32_driver.cpp)
-ament_target_dependencies(driver rclcpp geometry_msgs)
+# Add library subdirectory so it gets compiled from its own CMakeLists
+add_subdirectory(libs/gimbal-driver)
 
+include_directories(
+  include
+)
+set(TRACKER_SOURCES
+        include/gimbal.hpp
+        include/gimbals/real.hpp
+        include/gimbals/fake.hpp
+        include/angles.hpp
+
+        src/sbgc32_driver.cpp
+
+        src/gimbal.cpp
+        src/gimbals/real.cpp
+        src/gimbals/fake.cpp
+        src/angles.cpp
+)
+# Add executable, so it can be run by ros2 command
+add_executable(driver ${TRACKER_SOURCES})
+target_include_directories(driver PRIVATE $<BUILD_INTERFACE:${CMAKE_CURRENT_SOURCE_DIR}/libs/gimbal-driver>)
+
+ament_target_dependencies(driver rclcpp geometry_msgs)
+# Link SBGC32 Serial API library to the executable
+target_link_libraries(driver gimbal-driver)
 
 install(TARGETS
   driver

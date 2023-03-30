@@ -1,12 +1,17 @@
 #include <rclcpp/rclcpp.hpp>
 #include <geometry_msgs/msg/vector3.hpp>
 
+#include "gimbal.hpp"
+#include "gimbals/real.hpp"
+
 class SBGC32Node : public rclcpp::Node
 {
 
 public:
     SBGC32Node() : Node("sbgc32") {
         std::cout << "Hello world" << std::endl;
+        std::shared_ptr<Gimbal> gimbal = std::make_shared<RealGimbal>();
+        gimbal->motorsOn();
     }
 
 
