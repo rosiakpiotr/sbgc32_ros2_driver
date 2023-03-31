@@ -5,8 +5,8 @@
 #include <functional>
 
 #include <rclcpp/rclcpp.hpp>
-#include <geometry_msgs/msg/vector3.hpp>
-#include <std_msgs/msg/string.hpp>
+
+#include "gimbal_interfaces/msg/gimbal_angles.hpp"
 
 #include "gimbal.hpp"
 #include "gimbals/fake.hpp"
@@ -20,12 +20,12 @@ public:
 
 private:
     void publish_angles() const;
-    void target_angle_callback(const geometry_msgs::msg::Vector3::SharedPtr msg);
+    void target_angle_callback(const gimbal_interfaces::msg::GimbalAngles::SharedPtr msg);
 
     rclcpp::TimerBase::SharedPtr anglePubTimer;
-    rclcpp::Publisher<geometry_msgs::msg::Vector3>::SharedPtr anglePublisher;
+    rclcpp::Publisher<gimbal_interfaces::msg::GimbalAngles>::SharedPtr anglePublisher;
 
-    rclcpp::Subscription<geometry_msgs::msg::Vector3>::SharedPtr targetAngleSubscriber;
+    rclcpp::Subscription<gimbal_interfaces::msg::GimbalAngles>::SharedPtr targetAngleSubscriber;
 
     std::shared_ptr<Gimbal> gimbal;
 };

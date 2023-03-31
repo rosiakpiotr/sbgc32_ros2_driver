@@ -18,7 +18,7 @@ endif()
 # find dependencies
 find_package(ament_cmake REQUIRED)
 find_package(rclcpp REQUIRED)
-find_package(geometry_msgs REQUIRED)
+find_package(gimbal_interfaces REQUIRED)
 
 # Add library subdirectory so it gets compiled from its own CMakeLists
 add_subdirectory(libs/gimbal-driver)
@@ -45,7 +45,7 @@ set(TRACKER_SOURCES
 add_executable(driver ${TRACKER_SOURCES})
 target_include_directories(driver PRIVATE $<BUILD_INTERFACE:${CMAKE_CURRENT_SOURCE_DIR}/libs/gimbal-driver>)
 
-ament_target_dependencies(driver rclcpp geometry_msgs)
+ament_target_dependencies(driver rclcpp gimbal_interfaces)
 # Link SBGC32 Serial API library to the executable
 target_link_libraries(driver gimbal-driver)
 
