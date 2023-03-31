@@ -11,6 +11,14 @@ SBGC32Node::SBGC32Node() : Node("sbgc32")
         "/gimbal/target",
         10,
         std::bind(&SBGC32Node::target_angle_callback, this, std::placeholders::_1));
+
+    motorsStateService = this->create_service<gimbal_interfaces::srv::MotorsState>(
+        "/gimbal/motors",
+        std::bind(
+            &SBGC32Node::motorsStateSrvCallback,
+            this,
+            std::placeholders::_1,
+            std::placeholders::_2));
 }
 
 void SBGC32Node::publish_angles() const
@@ -36,4 +44,21 @@ void SBGC32Node::target_angle_callback(const gimbal_interfaces::msg::GimbalAngle
     std::stringstream ss;
     ss << "New target angles set: " << target;
     RCLCPP_INFO(this->get_logger(), ss.str());
+}
+
+void SBGC32Node::motorsStateSrvCallback(const gimbal_interfaces::srv::MotorsState::Request::SharedPtr req,
+                                        gimbal_interfaces::srv::MotorsState::Response::SharedPtr resp)
+{
+    if (req->enable)
+    {
+        RCLCPP_INFO(this->get_logger(), "Enabling motors.");
+        gimbal->motorsOn();
+    }
+    else
+    {
+        RCLCPP_INFO(this->get_logger(), "Disabling motors.");
+        gimbal->motorsOff();
+    }
+
+    resp = nullptr;
 }

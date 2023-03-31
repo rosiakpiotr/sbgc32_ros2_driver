@@ -5,8 +5,8 @@
             "includePath": [
                 "${workspaceFolder}/**",
                 "/opt/ros/foxy/include/**",
-                "${workspaceFolder}/include/sbgc32",
-                "${workspaceFolder}/include"
+                "${workspaceFolder}/../../install/gimbal_interfaces/include/**",
+                "/home/rosia/ros2_px4_ws/install/gimbal_interfaces/include"
             ],
             "defines": [],
             "compilerPath": "/usr/bin/gcc",
