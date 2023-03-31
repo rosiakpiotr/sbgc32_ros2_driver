@@ -31,6 +31,7 @@ set(TRACKER_SOURCES
         include/gimbals/real.hpp
         include/gimbals/fake.hpp
         include/angles.hpp
+        include/sbgc32_node.hpp
 
         src/sbgc32_driver.cpp
 
@@ -38,6 +39,7 @@ set(TRACKER_SOURCES
         src/gimbals/real.cpp
         src/gimbals/fake.cpp
         src/angles.cpp
+        src/sbgc32_node.cpp
 )
 # Add executable, so it can be run by ros2 command
 add_executable(driver ${TRACKER_SOURCES})

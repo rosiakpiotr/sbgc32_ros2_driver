@@ -2,6 +2,7 @@
 #define GIMBAL_FAKE_HPP
 
 #include "gimbal.hpp"
+#include "angles.hpp"
 
 class FakeGimbal : public Gimbal
 {
@@ -14,6 +15,9 @@ public:
     Angles getCurrentAngles() override;
 
     virtual ~FakeGimbal();
+
+private:
+    Angles angles;
 };
 
 #endif
